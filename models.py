@@ -21,5 +21,5 @@ class WorkHours(db.Model):
     __tablename__ = 'workHours'
     id = db.Column(db.Integer, primary_key = True)
     date = db.Column(db.Date(), nullable=False)
-    workHour = db.Column(db.Time(), nullable=False)
+    workHour = db.Column(db.Float, nullable=False)
     worker_id = db.Column(db.Integer, db.ForeignKey('workers.id'), nullable=False)
