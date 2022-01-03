@@ -15,12 +15,14 @@ def graph_3D(dataset, img_count):
 
     x_li = []
     z_li = []
+    emp_num = []
     dataset_dropEmp = dataset
     for i, c in enumerate(dataset.columns):
         if(i % 2 == 0):
             if(dataset[c].isnull().sum() >= len(dataset[c])-5):
                 dataset_dropEmp = dataset.drop(dataset.columns[[i, i+1]], axis=1)
             else:
+                emp_num.append(dataset[c].name)
                 x_li.append(dataset[c].index)
                 z_li.append(dataset.iloc[:, i+1])
 
@@ -40,6 +42,10 @@ def graph_3D(dataset, img_count):
         ax.plot(x, [c*2]*len(x), z, color=color)
 
     ax.get_xticks()
+    ax.set(yticks=range(2,len(emp_num)*2+2, 2), yticklabels=emp_num)
+    ax.set_xlabel('date time',labelpad=10)
+    ax.set_zlabel("hours")
+    ax.set_ylabel("workers",labelpad=30)
 
     # for dataset in datasets:
     #     ax.plot(dataset["x"], dataset["y"], dataset["z"], color=dataset["colour"])

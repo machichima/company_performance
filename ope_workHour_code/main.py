@@ -7,6 +7,7 @@
 
 import pandas as pd
 from flask import url_for
+from models import Project, Workers, WorkHours
 
 from .time_format import time_format
 from .filter_err_data import filter_err
@@ -14,14 +15,22 @@ from .one_day_workHour import one_day_workHour
 from .slope import slope
 from .graph import graph_3D
 
-def workHour(file):
+def workHour(file, db):
 
     sheets = pd.read_excel(file, sheet_name=None)
 
     slope_li = []
     img_count = 1
 
+    Project.query.delete()
+    Workers.query.delete()
+    WorkHours.query.delete()
+
     for name, sheet in sheets.items():
+
+        project = Project(name=name)
+        db.session.add(project)
+        db.session.commit()
 
         dataset = sheet.sort_values(by=['工號'])
         dataset_workNum = dataset["工號"]
@@ -52,4 +61,4 @@ def workHour(file):
         img_count+=1
             #dataset_FilterErrData_CalDur.to_excel(writer, sheet_name=emNum, index=False)
     slope_li_sorted = sorted(slope_li, key=lambda d: d['slope'])  #{k: v for k, v in sorted(slope_li.items(), key=lambda item: item[1])}
-    return slope_li_sorted
+    return [dataset_WorkTime_all, slope_li_sorted]
