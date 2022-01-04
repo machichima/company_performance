@@ -19,12 +19,12 @@ def graph_3D(dataset, img_count):
     dataset_dropEmp = dataset
     for i, c in enumerate(dataset.columns):
         if(i % 2 == 0):
-            if(dataset[c].isnull().sum() >= len(dataset[c])-5):
-                dataset_dropEmp = dataset.drop(dataset.columns[[i, i+1]], axis=1)
-            else:
-                emp_num.append(dataset[c].name)
-                x_li.append(dataset[c].index)
-                z_li.append(dataset.iloc[:, i+1])
+            ##if(dataset[c].isnull().sum() >= len(dataset[c])-5):
+            ##    dataset_dropEmp = dataset.drop(dataset.columns[[i, i+1]], axis=1)
+            #else:
+            emp_num.append(dataset[c].name)
+            x_li.append(dataset[c].index)
+            z_li.append(dataset.iloc[:, i+1])
 
     fig, ax = plt.subplots(subplot_kw={'projection': '3d'}, figsize=(20, 10))
 

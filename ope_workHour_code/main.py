@@ -13,7 +13,7 @@ from .time_format import time_format
 from .filter_err_data import filter_err
 from .one_day_workHour import one_day_workHour
 from .slope import slope
-from .graph import graph_3D
+#from ..graph.graph import graph_3D
 
 def workHour(file, db):
 
@@ -28,6 +28,8 @@ def workHour(file, db):
 
     for name, sheet in sheets.items():
 
+        emNum_li = []
+        
         project = Project(name=name)
         db.session.add(project)
         db.session.commit()
@@ -44,6 +46,8 @@ def workHour(file, db):
 
         # emNum = "D8682880"
             if(emNum == "工號"): break
+
+            emNum_li.append(emNum)
 
             worker = Workers(worknumber=emNum, project_id=project.id)
             db.session.add(worker)
@@ -65,11 +69,12 @@ def workHour(file, db):
             
             dataset_WorkTime_all = pd.concat([dataset_WorkTime_all, dataset_WorkTime_oneWorker], axis=1) 
 
-        graph_3D(dataset_WorkTime_all, img_count)
+        #graph_3D(dataset_WorkTime_all, img_count)
 
-        slope_li.append({'name': name, 'slope': slope(dataset_WorkTime_all), 'image': url_for('static', filename="images/"+str(img_count)+'.png')})
+        slope_li.append({'name': name, 'project_id': project.id, 'slope': slope(dataset_WorkTime_all), 'workers': emNum_li})   
+        # 'image': url_for('static', filename="images/"+str(img_count)+'.png')
         print(slope_li)
-        img_count+=1
+        # img_count+=1
             #dataset_FilterErrData_CalDur.to_excel(writer, sheet_name=emNum, index=False)
     slope_li_sorted = sorted(slope_li, key=lambda d: d['slope'])  #{k: v for k, v in sorted(slope_li.items(), key=lambda item: item[1])}
     return [dataset_WorkTime_all, slope_li_sorted]

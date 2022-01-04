@@ -1,9 +1,10 @@
-from flask import Flask, jsonify, request, send_file
+from flask import Flask, jsonify, request, send_file, url_for, make_response
 import pandas as pd
 from flask_sqlalchemy import SQLAlchemy
 from ope_workHour_code.main import workHour
 from models import db, Project, Workers
 from flask_migrate import Migrate
+from graph.graph_and_get_data import graph_and_get_data
 
 # your app config  
 
@@ -34,9 +35,21 @@ def upload_csv():
 
 @app.route('/get', methods=['GET'])
 def get_txt():
-    global file_temp
-    print(file_temp)
+    #global file_temp
+    #print(file_temp)
+    worker = Workers.query.filter_by(project_id=13).all()
+    print(worker[0].worknumber) 
     return 'Hi'
+
+@app.route('/graph', methods=['POST'])
+def graph():
+    json = request.get_json()
+    project_id = json['project']
+    workers = json['workers']
+    m = graph_and_get_data(project_id, workers)
+    if(m == 'error'):
+        return make_response(jsonify("error"), 400)
+    return {'project_id': project_id, 'image': url_for('static', filename="images/"+str(project_id)+'.png')}
 
 @app.route('/images/<int:pid>.png')
 def get_image(pid):
