@@ -5,12 +5,14 @@ from ope_workHour_code.main import workHour
 from models import db, Project, Workers
 from flask_migrate import Migrate
 from graph.graph_and_get_data import graph_and_get_data
+from flask_cors import CORS
 
 # your app config  
 
 UPLOAD_FOLDER = '/file'
 
 app = Flask(__name__)
+CORS(app)
 #api = Api(app)
 app.config['UPLOAD_FOLDER'] = UPLOAD_FOLDER
 
