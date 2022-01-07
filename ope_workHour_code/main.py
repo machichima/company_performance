@@ -29,6 +29,7 @@ def workHour(file, db):
     for name, sheet in sheets.items():
 
         emNum_li = []
+        error_workhours = []
         
         project = Project(name=name)
         db.session.add(project)
@@ -59,22 +60,35 @@ def workHour(file, db):
             dataset_oneEm_modiTime = time_format(dataset_oneEm)   # 分離日期和時間，並將時間轉為24小時制, 變為時間及日期的格式
 
             dataset_FilterErrData_CalDur = filter_err(dataset_oneEm_modiTime)   # 刪除錯誤資料並計算工時，放入新的dataset中
-
-            dataset_WorkTime_oneWorker = one_day_workHour(dataset_FilterErrData_CalDur, emNum)   # 計算一天工時
+            [dataset_WorkTime_oneWorker, dataset_WorkTime_oneWorker_noFil, max_val_date] = one_day_workHour(dataset_FilterErrData_CalDur, emNum)   # 計算一天工時
 
             for index, row in dataset_WorkTime_oneWorker.iterrows():
+                print(row)
                 workhour = WorkHours(date=row[emNum], workHour=row[" "], worker_id=worker.id)
                 db.session.add(workhour)
             db.session.commit()
             
+            std = dataset_WorkTime_oneWorker_noFil.iloc[:, 1].std()  #
+            #print(std, ": ", max_val_date)   #
+            if(std > 3):   #
+                error_workhours.append({'worker': emNum, 'date': max_val_date.strftime('%Y/%m/%d')})
+
             dataset_WorkTime_all = pd.concat([dataset_WorkTime_all, dataset_WorkTime_oneWorker], axis=1) 
 
         #graph_3D(dataset_WorkTime_all, img_count)
 
-        slope_li.append({'name': name, 'project_id': project.id, 'slope': slope(dataset_WorkTime_all), 'workers': emNum_li})   
+        slope_li.append(
+            {
+                'name': name, 
+                'project_id': project.id, 
+                'slope': slope(dataset_WorkTime_all), 
+                'workers': emNum_li,
+                'error_workhours': error_workhours
+            }
+        )   
         # 'image': url_for('static', filename="images/"+str(img_count)+'.png')
         print(slope_li)
         # img_count+=1
             #dataset_FilterErrData_CalDur.to_excel(writer, sheet_name=emNum, index=False)
     slope_li_sorted = sorted(slope_li, key=lambda d: d['slope'])  #{k: v for k, v in sorted(slope_li.items(), key=lambda item: item[1])}
-    return [dataset_WorkTime_all, slope_li_sorted]
+    return slope_li_sorted

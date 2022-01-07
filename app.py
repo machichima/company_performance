@@ -25,10 +25,7 @@ migrate.init_app(app, db)
 def upload_csv():
     if(request.method == "POST"):
         file = request.files['file']
-        a = workHour(file, db)
-        global file_temp 
-        file_temp = a[0]
-        json_file = a[1]
+        json_file = workHour(file, db)
         return jsonify(json_file)
     else:
         return 'none'
